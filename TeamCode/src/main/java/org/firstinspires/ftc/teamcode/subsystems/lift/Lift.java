@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.lift;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -7,10 +8,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class Lift {
 
     private static double kP = 0, kI = 0, kD = 0;
     private static double kS = 0;
+
     private static PIDController pid;
 
     private final Telemetry telemetry;
@@ -44,11 +47,12 @@ public class Lift {
 
         //get kG from table
         double kG = liftLUT.get(currentPos);
-        
+
         //control algorithm
         pidPower = pid.calculate(targetPos, currentPos);
         frictionPower = kS * targetDir;
         totalPower = kG + pidPower + frictionPower;
+        // can also do Range.clip between -1 and 1 for totalPower
 
         liftMotor.setPower(totalPower);
 

@@ -41,10 +41,11 @@ public class Arm {
         targetDir = Math.signum(targetAngle);
 
         pidPower = pid.calculate(targetAngle, currentAngle);
-        gravityPower = kG * Math.cos(currentAngle) * armLength;
+        gravityPower = kG * Math.cos(currentAngle) * armLength; //doesn't have to be *armLength, that value can also be incorporated in the kG
         frictionPower = targetDir * kS;
 
         totalPower = pidPower+gravityPower+frictionPower;
+        // can also do Range.clip between -1 and 1 for totalPower
 
         armMotor.setPower(totalPower);
 
