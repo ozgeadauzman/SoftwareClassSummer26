@@ -11,10 +11,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config
 public class TurretEmpty {
 
-    static double radiansPerEncoder = 0;
-    static double kP = 0;
-    static double kI = 0;
-    static double kD = 0;
+    public static double radiansPerEncoder = 0;
+    public static double kP = 0;
+    public static double kI = 0;
+    public static double kD = 0;
 
     static double bangBangPower = 0;
 
@@ -53,7 +53,8 @@ public class TurretEmpty {
                 turretMotor.setPower(0.0);
                 break;
             case POINT_AT_ANGLE:
-                setTargetAngle(targetAngle);
+                double power = pid.calculate(targetAngle, currentAngle);
+                turretMotor.setPower(power);
                 break;
 //            case SWING_PAST_ANGLE:
 //                turretMotor.setPower(bangBangPower);
