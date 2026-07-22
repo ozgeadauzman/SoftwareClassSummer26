@@ -57,7 +57,6 @@ public class ShooterTemplate {
         telemetry.addData("S motor power", shooterMotor.getPower());
     }
 
-    // TODO: use your equations to fill out this function below
     private double calculatePower(double currentVelocity, double targetVelocity) {
         double targetDir = Math.signum(targetVelocity);
         double velocityPower = kV*targetVelocity;
