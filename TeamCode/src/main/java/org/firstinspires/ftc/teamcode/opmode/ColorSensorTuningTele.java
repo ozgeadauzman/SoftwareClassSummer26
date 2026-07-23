@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -9,6 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.drivetrain.ColorSensorWrapper;
 
 @TeleOp (name = "ColorSensorTuningTele")
 public class ColorSensorTuningTele extends LinearOpMode {
+
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -20,6 +23,7 @@ public class ColorSensorTuningTele extends LinearOpMode {
         while (opModeIsActive()){
             colorSensor.update();
 
+            telemetry.addData("ball detected: ", colorSensor.ballDetected());
             telemetry.update();
         }
     }
