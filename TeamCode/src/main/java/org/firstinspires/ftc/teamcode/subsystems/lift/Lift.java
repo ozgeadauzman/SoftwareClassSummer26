@@ -14,6 +14,7 @@ public class Lift {
     private static double kP = 0, kI = 0, kD = 0;
     private static double kS = 0;
 
+    private static double dampeningBand = 0.5;
     private static PIDController pid;
 
     private final Telemetry telemetry;
@@ -22,7 +23,7 @@ public class Lift {
     private double targetPos;
     private double targetDir;
 
-    private double gravityPower, frictionPower, pidPower, totalPower;
+    private double batteryVoltage, frictionVoltage, pidVoltage, totalVoltage;
 
     private InterpLUT liftLUT = new InterpLUT();
     private double[] liftPositions = {100, 200, 300, 400};
@@ -43,18 +44,26 @@ public class Lift {
     public void update() {
         double currentPos = liftMotor.getCurrentPosition();
         pid.setPID(kP, kI, kD);
-        targetDir = Math.signum(targetPos);
+
+        double error = targetPos - currentPos;
+
+        //for dampening band
+        double scaleFactor = Math.min(1, Math.abs(error) / dampeningBand);
+
+        targetDir = Math.signum(error);
 
         //get kG from table
         double kG = liftLUT.get(currentPos);
 
         //control algorithm
-        pidPower = pid.calculate(targetPos, currentPos);
-        frictionPower = kS * targetDir;
-        totalPower = kG + pidPower + frictionPower;
+        pidVoltage = pid.calculate(targetPos, currentPos) * scaleFactor;
+        frictionVoltage = kS * targetDir * scaleFactor;
+        totalVoltage = kG + pidVoltage + frictionVoltage;
         // can also do Range.clip between -1 and 1 for totalPower
 
-        liftMotor.setPower(totalPower);
+        double power = totalVoltage / batteryVoltage;
+
+        liftMotor.setPower(power);
 
         telemetry.addLine("---LIFT---");
         telemetry.addData("lift target pos: ", targetPos);
@@ -67,4 +76,7 @@ public class Lift {
         this.targetPos = targetPos;
     }
 
+    public void setBatteryVoltage(double batteryVoltage) {
+        this.batteryVoltage = batteryVoltage;
+    }
 }

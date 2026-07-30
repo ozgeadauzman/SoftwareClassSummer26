@@ -15,7 +15,7 @@ public class CollectorTemplate {
     double intakePower = 0.5;
     double outtakePower = -0.5;
 
-    enum IntakeState {
+    public enum IntakeState {
         OFF,
         INTAKE,
         OUTTAKE

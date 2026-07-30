@@ -26,7 +26,7 @@ public class TurretEmpty {
 
     private PIDController pid;
 
-    enum TurretState {
+    public enum TurretState {
         OFF, POINT_AT_ANGLE, SWING_PAST_ANGLE
     }
     private TurretState currentTurretState;

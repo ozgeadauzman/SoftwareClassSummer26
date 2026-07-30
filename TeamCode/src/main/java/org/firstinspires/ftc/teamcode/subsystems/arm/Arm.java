@@ -12,6 +12,8 @@ public class Arm {
 
     public static double kG = 0, kS = 0;
     public static double kP = 0, kI = 0, kD = 0;
+
+    private final double deadbandRadians = 0.5;
     private static double radiansPerEncoder = 0;
 
     private final Telemetry telemetry;
@@ -22,8 +24,7 @@ public class Arm {
     private double targetDir;
     private final double armLength = 5;
 
-
-    private double gravityPower, frictionPower, pidPower, totalPower;
+    private double batteryVoltage, gravityVoltage, frictionVoltage, pidVoltage, totalVoltage;
 
 
     public Arm(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -38,16 +39,26 @@ public class Arm {
 
         pid.setPID(kP, kI, kD);
 
-        targetDir = Math.signum(targetAngle);
+        double error = targetAngle - currentAngle;
 
-        pidPower = pid.calculate(targetAngle, currentAngle);
-        gravityPower = kG * Math.cos(currentAngle) * armLength; //doesn't have to be *armLength, that value can also be incorporated in the kG
-        frictionPower = targetDir * kS;
+        //deadband control
+        if(Math.abs(error) < deadbandRadians) {
+            pidVoltage = 0;
+            frictionVoltage = 0;
+        }
 
-        totalPower = pidPower+gravityPower+frictionPower;
+        //feedforward and feedback controls
+        targetDir = Math.signum(error);
+
+        pidVoltage = pid.calculate(targetAngle, currentAngle);
+        gravityVoltage = kG * Math.cos(currentAngle) * armLength; //doesn't have to be *armLength, that value can also be incorporated in the kG
+        frictionVoltage = targetDir * kS;
+
+        totalVoltage = pidVoltage + gravityVoltage + frictionVoltage;
         // can also do Range.clip between -1 and 1 for totalPower
 
-        armMotor.setPower(totalPower);
+        double power = totalVoltage / batteryVoltage;
+        armMotor.setPower(power);
 
         telemetry.addLine("---ARM---");
         telemetry.addData("arm target angle: ", targetAngle);
@@ -59,5 +70,9 @@ public class Arm {
 
     public void setTargetAngle(double targetAngle) {
         this.targetAngle = targetAngle;
+    }
+
+    public void setBatteryVoltage(double batteryVoltage) {
+        this.batteryVoltage = batteryVoltage;
     }
 }
